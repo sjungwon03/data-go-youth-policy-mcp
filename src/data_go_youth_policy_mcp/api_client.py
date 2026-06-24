@@ -11,16 +11,11 @@ from dotenv import load_dotenv
 
 from data_go_youth_policy_mcp.models import (
     ApiResponse,
-    BasicPlanAssignmentParams,
-    BasicPlanFocusAssessmentParams,
-    ContentParams,
     ErrorPayload,
     ErrorResponse,
     JsonValue,
-    PolicyWayParams,
     QueryParams,
     RawParams,
-    SpaceParams,
     SuccessResponse,
     YouthPolicyDetailParams,
     YouthPolicySearchParams,
@@ -30,11 +25,6 @@ API_KEY_ENV: Final = "YOUTH_POLICY_API_KEY"
 API_KEY_PARAM: Final = "apiKeyNm"
 ONTONG_BASE_URL: Final = "https://www.youthcenter.go.kr/go/ythip"
 YOUTH_POLICY_ENDPOINT: Final = f"{ONTONG_BASE_URL}/getPlcy"
-BASIC_PLAN_FOCUS_ASSESSMENT_ENDPOINT: Final = f"{ONTONG_BASE_URL}/getBscPlanFcsAsmt"
-POLICY_WAY_ENDPOINT: Final = f"{ONTONG_BASE_URL}/getPolicyWay"
-CONTENT_ENDPOINT: Final = f"{ONTONG_BASE_URL}/getContent"
-BASIC_PLAN_ASSIGNMENT_ENDPOINT: Final = f"{ONTONG_BASE_URL}/getBscPlanAsm"
-SPACE_ENDPOINT: Final = f"{ONTONG_BASE_URL}/getSpace"
 
 
 @dataclass(frozen=True, slots=True)
@@ -79,30 +69,6 @@ class YouthPolicyApiClient:
 
     async def get_detail(self, detail_params: YouthPolicyDetailParams) -> ApiResponse:
         return await self.fetch_raw(detail_params.to_query_params())
-
-    async def get_basic_plan_focus_assessments(
-        self,
-        params: BasicPlanFocusAssessmentParams,
-    ) -> ApiResponse:
-        return await self._fetch_endpoint(
-            BASIC_PLAN_FOCUS_ASSESSMENT_ENDPOINT,
-            params.to_query_params(),
-        )
-
-    async def get_policy_ways(self, params: PolicyWayParams) -> ApiResponse:
-        return await self._fetch_endpoint(POLICY_WAY_ENDPOINT, params.to_query_params())
-
-    async def get_contents(self, params: ContentParams) -> ApiResponse:
-        return await self._fetch_endpoint(CONTENT_ENDPOINT, params.to_query_params())
-
-    async def get_basic_plan_assignments(
-        self,
-        params: BasicPlanAssignmentParams,
-    ) -> ApiResponse:
-        return await self._fetch_endpoint(BASIC_PLAN_ASSIGNMENT_ENDPOINT, params.to_query_params())
-
-    async def get_spaces(self, params: SpaceParams) -> ApiResponse:
-        return await self._fetch_endpoint(SPACE_ENDPOINT, params.to_query_params())
 
     async def fetch_raw(self, params: RawParams | QueryParams) -> ApiResponse:
         return await self._fetch_endpoint(YOUTH_POLICY_ENDPOINT, params)
