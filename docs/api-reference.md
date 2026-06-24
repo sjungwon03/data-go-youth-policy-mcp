@@ -1,23 +1,18 @@
-# 온통청년 OPEN API 참고
+# 청년정책 API 참고
 
 Source: 온통청년 > 이용안내 > 오픈(OPEN) API 제공목록
 
-## 확인된 엔드포인트
+## 현재 MCP 범위
 
 | API | Method | URL |
 | --- | --- | --- |
 | 청년정책 | GET | `https://www.youthcenter.go.kr/go/ythip/getPlcy` |
-| 기본계획중점과제 | GET | `https://www.youthcenter.go.kr/go/ythip/getBscPlanFcsAsmt` |
-| 기본계획정책방향 | GET | `https://www.youthcenter.go.kr/go/ythip/getPolicyWay` |
-| 청년콘텐츠 | GET | `https://www.youthcenter.go.kr/go/ythip/getContent` |
-| 기본계획과제 | GET | `https://www.youthcenter.go.kr/go/ythip/getBscPlanAsm` |
-| 청년센터 | GET | `https://www.youthcenter.go.kr/go/ythip/getSpace` |
 
-기본계획과제는 문서의 URL 표에는 `getBscPlanAsm`, 요청 예시에는 `getBscPlanAsmt`로 표기되어 있다. 구현은 URL 표의 `getBscPlanAsm`을 사용한다.
+기본계획중점과제, 기본계획정책방향, 청년콘텐츠, 기본계획과제, 청년센터 API는 이 MCP 범위에 포함하지 않는다. 각 API는 별도 인증/설정이 필요하므로 후속 작업에서 별도 MCP로 분리한다.
 
 ## 인증
 
-- 온통청년 OPEN API 발급키 필요.
+- 청년정책 API 발급키 필요.
 - 인증키 파라미터명: `apiKeyNm`
 - 구현 환경변수명: `YOUTH_POLICY_API_KEY`
 - MCP tool 입력으로 받은 `apiKeyNm`은 무시하고 서버 환경변수 값을 주입한다.
@@ -63,28 +58,6 @@ Source: 온통청년 > 이용안내 > 오픈(OPEN) API 제공목록
 | 고정값 `2` | `pageType` |
 | `policy_no` | `plcyNo` |
 | `return_type` | `rtnType` |
-
-### 추가 원시 조회 도구
-
-| MCP tool | upstream endpoint | MCP 입력 | upstream 파라미터 |
-| --- | --- | --- | --- |
-| `ontong_basic_plan_focus_assessment_get_raw` | `getBscPlanFcsAsmt` | `return_type` | `rtnType` |
-| `ontong_policy_way_get_raw` | `getPolicyWay` | `return_type` | `rtnType` |
-| `ontong_basic_plan_assignment_get_raw` | `getBscPlanAsm` | `return_type` | `rtnType` |
-| `ontong_content_get_raw` | `getContent` | `page_num` | `pageNum` |
-| `ontong_content_get_raw` | `getContent` | `page_size` | `pageSize` |
-| `ontong_content_get_raw` | `getContent` | `page_type` | `pageType` |
-| `ontong_content_get_raw` | `getContent` | `post_sn` | `pstSn` |
-| `ontong_content_get_raw` | `getContent` | `post_section_code` | `pstSeCd` |
-| `ontong_content_get_raw` | `getContent` | `return_type` | `rtnType` |
-| `ontong_space_get_raw` | `getSpace` | `page_num` | `pageNum` |
-| `ontong_space_get_raw` | `getSpace` | `page_size` | `pageSize` |
-| `ontong_space_get_raw` | `getSpace` | `page_type` | `pageType` |
-| `ontong_space_get_raw` | `getSpace` | `city_code` | `ctpvCd` |
-| `ontong_space_get_raw` | `getSpace` | `district_code` | `sggCd` |
-| `ontong_space_get_raw` | `getSpace` | `place_sn` | `plcSn` |
-| `ontong_space_get_raw` | `getSpace` | `place_type` | `plcType` |
-| `ontong_space_get_raw` | `getSpace` | `return_type` | `rtnType` |
 
 ## 출력 필드
 
@@ -151,56 +124,6 @@ Source: 온통청년 > 이용안내 > 오픈(OPEN) API 제공목록
 - `lastMdfcnDt`: 최종수정일시
 - `sBizCd`: 정책특화요건코드
 
-### 기본계획중점과제
-
-- `bscPlanCycl`: 기본계획차수
-- `bscPlanPlcyWayNo`: 기본계획정책방향번호
-- `bscPlanFcsAsmtNo`: 기본계획중점과제번호
-- `fcsAsmtNm`: 중점과제명
-
-### 기본계획정책방향
-
-- `bscPlanCycl`: 기본계획차수
-- `bscPlanPlcyWayNo`: 기본계획정책방향번호
-- `wayNm`: 정책방향명
-
-### 청년콘텐츠
-
-- `bbsSn`: 게시판일련번호
-- `pstSn`: 게시물일련번호
-- `pstSeSn`: 게시물구분일련번호
-- `pstTtl`: 게시물제목
-- `pstWholCn`: 게시물전체내용
-- `pstUrlAddr`: 게시물URL주소
-- `atchFile`: 첨부파일
-- `thumnamilYn`: 썸네일여부
-- `pstSeNm`: 게시물구분명
-- `frstRgtrNm`: 최초등록자명
-- `frstRegDt`: 최초등록일시
-- `lastMdfrNm`: 최종수정자명
-- `lastMdfcnDt`: 최종수정일시
-- `pstInqCnt`: 게시물조회수
-
-### 기본계획과제
-
-- `bscPlanCycl`: 기본계획차수
-- `bscPlanFcsAsmtNo`: 기본계획중점과제번호
-- `asmtNm`: 과제명
-- `bscPlanAsmtNo`: 기본계획과제번호
-
-### 청년센터
-
-- `cntrSn`: 센터일련번호
-- `cntrNm`: 센터명
-- `cntrTelno`: 센터전화번호
-- `cntrAddr`: 센터주소
-- `cntrDaddr`: 센터상세주소
-- `cntrUrlAddr`: 센터URL주소
-- `stdgCtpvCd`: 법정동시도코드
-- `stdgCtpvCdNm`: 법정동시도코드명
-- `stdgSggCd`: 법정동시군구코드
-- `stdgSggCdNm`: 법정동시군구코드명
-
 ## 요청 예시
 
 ```text
@@ -213,4 +136,4 @@ https://www.youthcenter.go.kr/go/ythip/getPlcy?apiKeyNm=testKey&pageNum=1&pageSi
 - 오류 payload 형식
 - 호출 제한 수치
 - `pageSize` 공식 최대값
-- 기본계획과제 endpoint 표기 불일치: `getBscPlanAsm` vs `getBscPlanAsmt`
+- 다른 온통청년 API의 별도 인증/설정 방식

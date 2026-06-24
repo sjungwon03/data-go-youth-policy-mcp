@@ -2,18 +2,13 @@
 
 ## 목표
 
-온통청년 OPEN API를 읽기 전용 MCP 서버로 제공한다.
+온통청년 청년정책 API를 읽기 전용 MCP 서버로 제공한다.
 
 현재 범위:
 
 - 청년정책 목록 검색
 - 청년정책 상세 조회
 - 청년정책 raw 조회
-- 기본계획중점과제 raw 조회
-- 기본계획정책방향 raw 조회
-- 청년콘텐츠 raw 조회
-- 기본계획과제 raw 조회
-- 청년센터 raw 조회
 - 페이지네이션
 - 공식 문서에 있는 주요 필터 전달
 - 응답 정규화는 실 API 응답 구조 확인 후 진행
@@ -25,6 +20,7 @@
 - 새 프레임워크 도입 없음.
 - 호출 제한/캐시/복잡한 재시도는 실제 제한 확인 전까지 보류.
 - caller가 전달한 `apiKeyNm`으로 서버 소유 API key를 덮어쓰지 않음.
+- 기본계획중점과제, 기본계획정책방향, 청년콘텐츠, 기본계획과제, 청년센터 API는 이 MCP에 포함하지 않음.
 
 ## 제안 도구 설계
 
@@ -53,16 +49,6 @@
 
 - `apiKeyNm` 직접 입력 금지. 서버가 환경변수에서 주입.
 - 읽기 전용 GET만 허용.
-
-### 추가 raw 조회 도구
-
-- `ontong_basic_plan_focus_assessment_get_raw` → `getBscPlanFcsAsmt`
-- `ontong_policy_way_get_raw` → `getPolicyWay`
-- `ontong_content_get_raw` → `getContent`
-- `ontong_basic_plan_assignment_get_raw` → `getBscPlanAsm`
-- `ontong_space_get_raw` → `getSpace`
-
-기본계획과제는 공식 문서 URL 표와 요청 예시의 endpoint 표기가 다르다. 현재 구현은 URL 표의 `getBscPlanAsm`을 따른다.
 
 ## 파일 구조
 
@@ -110,7 +96,6 @@ docs/
    - `youth_policy_search`
    - `youth_policy_get_detail`
    - `youth_policy_get_raw`
-   - 추가 OPEN API raw 조회 tools
    - `stdio` 실행
 
 5. 테스트
@@ -153,7 +138,6 @@ docs/
 - `youth_policy_search` 구현
 - `youth_policy_get_detail` 구현
 - `youth_policy_get_raw` 구현
-- 추가 OPEN API raw 조회 tools 구현
 - tool smoke test
 
 ### Issue 4 — 실 API 응답 검증 및 출력 정규화
