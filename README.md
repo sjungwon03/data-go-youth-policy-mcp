@@ -96,6 +96,144 @@ python -m data_go_youth_policy_mcp.server
 }
 ```
 
+## LLM 코딩 에이전트용 설정 지침
+
+LangChain 또는 LangGraph 프로젝트에서 LLM 코딩 에이전트가 이 README만 보고 설정해야 한다면 아래 순서로 진행하면 됩니다.
+
+### 1. 이 MCP 서버 준비
+
+이 저장소를 로컬에 clone하고 의존성을 설치합니다.
+
+```bash
+git clone https://github.com/sjungwon03/data-go-youth-policy-mcp.git
+cd data-go-youth-policy-mcp
+uv sync
+```
+
+청년정책 API key는 이 MCP 서버 프로세스의 환경변수로만 전달합니다.
+
+```bash
+export YOUTH_POLICY_API_KEY=발급받은_API_키
+```
+
+API key를 코드, prompt, LangChain state, LangGraph checkpoint에 저장하지 마세요.
+
+### 2. LangChain/LangGraph 프로젝트 의존성 추가
+
+호출하는 프로젝트에는 MCP adapter를 설치합니다.
+
+```bash
+uv add langchain-mcp-adapters
+```
+
+`pip` 기반 프로젝트라면 다음을 사용합니다.
+
+```bash
+python -m pip install langchain-mcp-adapters
+```
+
+### 3. MCP client 설정
+
+LangChain/LangGraph 프로젝트 코드에서 `MultiServerMCPClient`를 사용해 이 서버를 stdio subprocess로 등록합니다.
+
+```python
+import os
+
+from langchain_mcp_adapters.client import MultiServerMCPClient
+
+client = MultiServerMCPClient(
+    {
+        "data-go-youth-policy": {
+            "transport": "stdio",
+            "command": "uv",
+            "args": [
+                "--directory",
+                "/ABSOLUTE/PATH/TO/data-go-youth-policy-mcp",
+                "run",
+                "python",
+                "-m",
+                "data_go_youth_policy_mcp.server",
+            ],
+            "env": {
+                "YOUTH_POLICY_API_KEY": os.environ["YOUTH_POLICY_API_KEY"],
+            },
+        }
+    }
+)
+```
+
+`/ABSOLUTE/PATH/TO/data-go-youth-policy-mcp`는 이 저장소의 절대 경로로 바꿉니다. `YOUTH_POLICY_API_KEY`가 설정되지 않았으면 애플리케이션 시작 단계에서 먼저 환경변수를 주입하세요.
+
+### 4. LangChain agent에서 tools 로드
+
+```python
+tools = await client.get_tools()
+```
+
+로드되는 도구는 다음 세 개입니다.
+
+- `youth_policy_search`
+- `youth_policy_get_detail`
+- `youth_policy_get_raw`
+
+에이전트에게는 다음 규칙을 system prompt 또는 developer prompt에 넣는 것을 권장합니다.
+
+```text
+청년정책 정보가 필요하면 data-go-youth-policy MCP tools를 사용한다.
+목록 검색은 youth_policy_search, 정책번호 상세 조회는 youth_policy_get_detail을 사용한다.
+응답 구조 확인이 필요한 경우에만 youth_policy_get_raw를 사용한다.
+apiKeyNm은 절대 직접 전달하지 않는다. 서버가 YOUTH_POLICY_API_KEY를 apiKeyNm으로 주입한다.
+기본계획중점과제, 기본계획정책방향, 청년콘텐츠, 기본계획과제, 청년센터 API는 이 MCP의 범위가 아니다.
+```
+
+### 5. LangGraph node에서 사용
+
+LangGraph에서는 graph 초기화 시 MCP tools를 한 번 로드한 뒤 tool node 또는 agent node에 전달합니다.
+
+```python
+import os
+
+from langchain_mcp_adapters.client import MultiServerMCPClient
+
+
+async def load_youth_policy_tools():
+    client = MultiServerMCPClient(
+        {
+            "data-go-youth-policy": {
+                "transport": "stdio",
+                "command": "uv",
+                "args": [
+                    "--directory",
+                    "/ABSOLUTE/PATH/TO/data-go-youth-policy-mcp",
+                    "run",
+                    "python",
+                    "-m",
+                    "data_go_youth_policy_mcp.server",
+                ],
+                "env": {"YOUTH_POLICY_API_KEY": os.environ["YOUTH_POLICY_API_KEY"]},
+            }
+        }
+    )
+    return await client.get_tools()
+```
+
+### 6. 빠른 동작 확인
+
+LLM agent에 연결하기 전, tool 목록을 먼저 확인합니다.
+
+```python
+tools = await client.get_tools()
+print([tool.name for tool in tools])
+```
+
+예상 결과:
+
+```python
+["youth_policy_search", "youth_policy_get_detail", "youth_policy_get_raw"]
+```
+
+API key가 없거나 잘못된 경우 서버는 시작 또는 호출 시 오류를 반환합니다. 실제 API 응답 구조는 아직 정규화하지 않으므로 agent 코드는 `ok`가 `true`인지 확인한 뒤 `data`를 읽어야 합니다.
+
 ## 도구
 
 ### `youth_policy_search`
