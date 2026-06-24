@@ -7,12 +7,7 @@ import pytest
 
 from data_go_youth_policy_mcp import server
 from data_go_youth_policy_mcp.models import (
-    BasicPlanAssignmentParams,
-    BasicPlanFocusAssessmentParams,
-    ContentParams,
-    PolicyWayParams,
     RawParams,
-    SpaceParams,
     SuccessResponse,
     YouthPolicyDetailParams,
     YouthPolicySearchParams,
@@ -42,27 +37,6 @@ class FakeClient:
 
     async def fetch_raw(self, params: RawParams) -> SuccessResponse:
         return SuccessResponse(data=params)
-
-    async def get_basic_plan_focus_assessments(
-        self,
-        params: BasicPlanFocusAssessmentParams,
-    ) -> SuccessResponse:
-        return SuccessResponse(data=params.to_query_params())
-
-    async def get_policy_ways(self, params: PolicyWayParams) -> SuccessResponse:
-        return SuccessResponse(data=params.to_query_params())
-
-    async def get_contents(self, params: ContentParams) -> SuccessResponse:
-        return SuccessResponse(data=params.to_query_params())
-
-    async def get_basic_plan_assignments(
-        self,
-        params: BasicPlanAssignmentParams,
-    ) -> SuccessResponse:
-        return SuccessResponse(data=params.to_query_params())
-
-    async def get_spaces(self, params: SpaceParams) -> SuccessResponse:
-        return SuccessResponse(data=params.to_query_params())
 
 
 @pytest.mark.asyncio
@@ -126,96 +100,3 @@ async def test_youth_policy_search_validation_error() -> None:
 
     assert response["ok"] is False
     assert response["error"]["code"] == "invalid_search_params"
-
-
-@pytest.mark.asyncio
-async def test_basic_plan_focus_assessment_tool_returns_mapped_params(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    monkeypatch.setattr(server, "YouthPolicyApiClient", FakeClient)
-
-    response = await server.ontong_basic_plan_focus_assessment_get_raw(return_type="xml")
-
-    assert response == {"ok": True, "data": {"rtnType": "xml"}}
-
-
-@pytest.mark.asyncio
-async def test_policy_way_tool_returns_mapped_params(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(server, "YouthPolicyApiClient", FakeClient)
-
-    response = await server.ontong_policy_way_get_raw()
-
-    assert response == {"ok": True, "data": {"rtnType": "json"}}
-
-
-@pytest.mark.asyncio
-async def test_content_tool_returns_mapped_params(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(server, "YouthPolicyApiClient", FakeClient)
-
-    response = await server.ontong_content_get_raw(
-        page_num=2,
-        page_size=50,
-        page_type="2",
-        post_sn="100",
-        post_section_code="notice",
-    )
-
-    assert response == {
-        "ok": True,
-        "data": {
-            "pageNum": 2,
-            "pageSize": 50,
-            "pageType": "2",
-            "pstSn": "100",
-            "pstSeCd": "notice",
-            "rtnType": "json",
-        },
-    }
-
-
-@pytest.mark.asyncio
-async def test_basic_plan_assignment_tool_returns_mapped_params(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    monkeypatch.setattr(server, "YouthPolicyApiClient", FakeClient)
-
-    response = await server.ontong_basic_plan_assignment_get_raw(return_type="json")
-
-    assert response == {"ok": True, "data": {"rtnType": "json"}}
-
-
-@pytest.mark.asyncio
-async def test_space_tool_returns_mapped_params(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(server, "YouthPolicyApiClient", FakeClient)
-
-    response = await server.ontong_space_get_raw(
-        page_num=3,
-        page_size=20,
-        page_type="1",
-        city_code="11",
-        district_code="11000",
-        place_sn="200",
-        place_type="center",
-    )
-
-    assert response == {
-        "ok": True,
-        "data": {
-            "pageNum": 3,
-            "pageSize": 20,
-            "pageType": "1",
-            "ctpvCd": "11",
-            "sggCd": "11000",
-            "plcSn": "200",
-            "plcType": "center",
-            "rtnType": "json",
-        },
-    }
-
-
-@pytest.mark.asyncio
-async def test_content_tool_validation_error() -> None:
-    response = await server.ontong_content_get_raw(page_num=0)
-
-    assert response["ok"] is False
-    assert response["error"]["code"] == "invalid_content_params"
