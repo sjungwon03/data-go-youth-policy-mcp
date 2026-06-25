@@ -6,6 +6,7 @@ from mcp.server.fastmcp import FastMCP
 from pydantic import ValidationError
 
 from data_go_youth_policy_mcp.api_client import YouthPolicyApiClient
+from data_go_youth_policy_mcp.code_reference import get_code_reference
 from data_go_youth_policy_mcp.models import (
     ErrorPayload,
     ErrorResponse,
@@ -91,6 +92,23 @@ async def youth_policy_get_detail(policy_no: str, return_type: str = "json") -> 
     async with YouthPolicyApiClient() as client:
         response = await client.get_detail(detail_params)
     return response.model_dump()
+
+
+@mcp.tool()
+async def youth_policy_get_code_reference(
+    group: str | None = None,
+    code: str | None = None,
+) -> JsonObject:
+    """청년정책 응답 코드값 레퍼런스를 조회합니다.
+
+    LLM 에이전트가 청년정책 응답의 코드 필드를 해석할 때 사용합니다.
+    `group` 없이 호출하면 제공기관, 제공방법, 승인상태, 신청기간,
+    사업기간, 결혼상태, 소득조건, 전공, 취업, 학력, 특화요건,
+    정책분류, 정책키워드 코드값 전체를 반환합니다. `group`만 지정하면
+    해당 코드 그룹 전체를, `group`과 `code`를 함께 지정하면 단일
+    코드의 표시명을 반환합니다.
+    """
+    return get_code_reference(group, code)
 
 
 @mcp.tool()

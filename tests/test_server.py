@@ -95,6 +95,38 @@ async def test_youth_policy_get_raw_calls_client(monkeypatch: pytest.MonkeyPatch
 
 
 @pytest.mark.asyncio
+async def test_youth_policy_get_code_reference_returns_all_groups() -> None:
+    response = await server.youth_policy_get_code_reference()
+
+    assert response["ok"] is True
+    assert response["data"]["groups"]["pvsnInstGroupCd"]["label"] == "제공기관그룹코드"
+    assert response["data"]["groups"]["pvsnInstGroupCd"]["codes"]["0054001"] == "중앙부처"
+
+
+@pytest.mark.asyncio
+async def test_youth_policy_get_code_reference_returns_single_code() -> None:
+    response = await server.youth_policy_get_code_reference("sbizCd", "0014005")
+
+    assert response == {
+        "ok": True,
+        "data": {
+            "group": "sbizCd",
+            "label": "정책특화요건코드",
+            "code": "0014005",
+            "name": "장애인",
+        },
+    }
+
+
+@pytest.mark.asyncio
+async def test_youth_policy_get_code_reference_rejects_unknown_group() -> None:
+    response = await server.youth_policy_get_code_reference("unknownCd")
+
+    assert response["ok"] is False
+    assert response["error"]["code"] == "unknown_code_group"
+
+
+@pytest.mark.asyncio
 async def test_youth_policy_search_validation_error() -> None:
     response = await server.youth_policy_search(page_num=0)
 
